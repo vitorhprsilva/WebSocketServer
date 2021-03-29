@@ -1,19 +1,11 @@
-const webSocketServerPort = 8000;
-const webSocketServer = require('websocket').server;
-const http = require('http');
-// const express = require('express');
+const WebSocket = require('ws');
+const express = require('express');
+const PORT = 8000;
+const app = express();
 
-// const app = express();
+app.listen(PORT);
 
-
-const server = http.createServer();
-server.listen(webSocketServerPort);
-console.log("listening on port " + webSocketServerPort)
-
-
-const wsServer = new webSocketServer({
-  httpServer: server
-});
+const wss = new WebSocket.Server({ port: PORT});
 
 const clients = {};
 
@@ -22,12 +14,13 @@ const getUniqueID = () =>{
   return s4() + s4() + '-' + s4();
 }
 
-wsServer.on('request', (request)=>{
+wss.on('req', (req)=>{
+
   var userID = getUniqueID();
 
-  console.log((new Date()) + ' Receved a new connection from origin ' + request.origin + '.')
+  console.log((new Date()) + ' Receved a new connection from origin ' + req.origin + '.')
 
-  const connection = request.accept(null, request.origin);
+  const connection = req.accept(null, req.origin);
 
   clients[userID] = connection;
 
@@ -43,6 +36,9 @@ wsServer.on('request', (request)=>{
     }
   })
 
+
 })
 
-// app.listen(webSocketServerPort);
+console.log("listening on port " + PORT)
+
+//https://oieduardorabelo.medium.com/node-js-usando-websockets-5d642456d1f3
